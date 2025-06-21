@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    
+    <h2 class="mb-4">{% if vehicule %}Modifier le véhicule{% else %}Ajouter un véhicule{% endif %}</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="marque" class="form-label">Marque</label>
+            <input type="text" class="form-control" id="marque" name="marque" value="{{ vehicule.marque|default:'' }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="modele" class="form-label">Modèle</label>
+            <input type="text" class="form-control" id="modele" name="modele" value="{{ vehicule.modele|default:'' }}" required>
+        </div>
+
+        <div class="mb-3">
+    <label for="annee" class="form-label">Année</label>
+    <input type="number" name="annee" class="form-control" id="annee"
+           value="{{ vehicule.annee|default_if_none:'' }}">
+</div>
+
+        <div class="mb-3">
+            <label for="prix" class="form-label">Prix</label>
+            <input type="number" class="form-control" id="prix" name="prix" value="{{ vehicule.prix|default:'' }}" required>
+        </div>
+
+        <div class="mb-3">
+    <label class="form-label">Couleur</label>
+    <select id="couleur-select" name="couleur" class="form-select" onchange="gererAutreCouleur(this)">
+        <option value="" disabled selected>Choisir une couleur</option>
+        <option value="Noir">Noir</option>
+        <option value="Gris">Gris</option>
+        <option value="Rouge">Rouge</option>
+        <option value="Bleu">Bleu</option>
+        <option value="autre">Autre...</option>
+    </select>
+
+    <!-- Champ texte caché par défaut -->
+    <input type="text" id="autre-couleur" name="couleur" class="form-control mt-2" placeholder="Entrez une autre couleur" style="display: none;">
+</div>
+
+        <div class="mb-3">
+            <label for="image" class="form-label">Image</label>
+            <input type="file" class="form-control" id="image" name="image">
+            {% if vehicule.image %}
+                <div class="mt-2">
+                    <img src="{{ vehicule.image.url }}" alt="Image actuelle" width="120">
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required>{{ vehicule.description|default:'' }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            {% if vehicule %}Mettre à jour{% else %}Enregistrer{% endif %}
+        </button>
+        <a href="{% url 'vendeur_dashboard' %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

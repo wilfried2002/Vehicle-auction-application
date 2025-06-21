@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% if messages %}
+    <div id="messages-container">
+        {% for message in messages %}
+            <div class="notification success">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+    <meta charset="UTF-8">
+    <title>Inscription</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            width: 420px;
+            margin: 80px auto;
+            background: #fff;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        .notification {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-align: center;
+    animation: fadeout 0.5s ease forwards;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.notification.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+        select {
+            appearance: none;
+            background-color: #fff;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: "▼";
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #888;
+        }
+
+        .toggle-password {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .toggle-password input {
+            margin-right: 6px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #218838;
+        }
+
+        .error {
+            color: red;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        p {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Inscription</h2>
+
+    
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="input-group">
+            <label for="username">Nom d'utilisateur</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="input-group">
+            <label for="email">Adresse e-mail</label>
+            <input type="email" name="email" required>
+        </div>
+
+        <div class="input-group">
+            <label for="role">Rôle</label>
+            <div class="select-wrapper">
+                <select name="role" required>
+                    <option value="">-- Choisir un rôle --</option>
+                    <option value="buyer">Acheteur</option>
+                    <option value="seller">Vendeur</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="password1">Mot de passe</label>
+            <input type="password" name="password1" id="password1" required>
+        </div>
+
+        <div class="input-group">
+            <label for="password2">Confirmer le mot de passe</label>
+            <input type="password" name="password2" id="password2" required>
+        </div>
+
+        <div class="toggle-password">
+            <input type="checkbox" onclick="togglePassword()"> Afficher les mots de passe
+        </div>
+
+        <button type="submit" class="btn">S'inscrire</button>
+
+        <p>Déjà inscrit ? <a href="{% url 'login' %}">Connectez-vous</a></p>
+    </form>
+</div>
+
+<script>
+    function togglePassword() {
+        const p1 = document.getElementById("password1");
+        const p2 = document.getElementById("password2");
+        const type = p1.type === "password" ? "text" : "password";
+        p1.type = type;
+        p2.type = type;
+    }
+
+    // Vider automatiquement tous les champs du formulaire au chargement
+    window.addEventListener("DOMContentLoaded", () => {
+        const form = document.querySelector("form");
+        if (form) {
+            form.reset();
+        }
+    });
+    setTimeout(() => {
+            const messages = document.querySelectorAll(".notification");
+            messages.forEach(msg => {
+                msg.style.opacity = 0;
+                setTimeout(() => msg.remove(), 500); // Supprimer après la transition
+            });
+        }, 1000);
+</script>
+</body>
+</html>

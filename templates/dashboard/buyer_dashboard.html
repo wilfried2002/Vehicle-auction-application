@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tableau de bord Acheteur</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f8;
+            color: #333;
+        }
+
+        header {
+            background-color: #007BFF;
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logout {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .logout:hover {
+            background-color: #bb2d3b;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .nav-tabs .nav-link {
+            color: #007BFF;
+            font-weight: 500;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: #dbe9ff;
+            border-color: #dee2e6 #dee2e6 #fff;
+            color: #0056b3;
+        }
+
+        .tab-content {
+            margin-top: 30px;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+
+<header class="bg-primary text-white py-3 px-4 d-flex justify-content-end align-items-center gap-3">
+    <div class="user-info">
+        <span class="fw-semibold">Connecté en tant que</span> <strong>{{ request.user.username }}</strong>
+    </div>
+    <a href="{% url 'logout' %}" class="btn btn-outline-light d-flex align-items-center gap-2">
+        <i class="bi bi-box-arrow-right"></i> Déconnexion
+    </a>
+</header>
+
+<main>
+    <h1 class="text-center mb-4">Bienvenue, Acheteur !</h1>
+
+    <!-- Onglets de navigation -->
+    <ul class="nav nav-tabs justify-content-center" id="buyerTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="vehicules-tab" data-bs-toggle="tab" data-bs-target="#vehicules" type="button" role="tab">
+                <i class="bi bi-car-front-fill me-2"></i>Voir les véhicules
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="offre-tab" data-bs-toggle="tab" data-bs-target="#offre" type="button" role="tab">
+                <i class="bi bi-cash-coin me-2"></i>Faire une offre
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="achats-tab" data-bs-toggle="tab" data-bs-target="#achats" type="button" role="tab">
+                <i class="bi bi-cart-check-fill me-2"></i>Mes achats
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="encheres-tab" data-bs-toggle="tab" data-bs-target="#encheres" type="button" role="tab">
+                <i class="bi bi-graph-up-arrow me-2"></i>Suivi des enchères
+            </button>
+        </li>
+    </ul>
+
+    <!-- Contenu des onglets -->
+    <div class="tab-content" id="buyerTabsContent">
+        <div class="tab-pane fade show active" id="vehicules" role="tabpanel" aria-labelledby="vehicules-tab">
+            <h5>Liste des véhicules disponibles</h5>
+            <p>Ici s'affiche la liste des véhicules proposés par les vendeurs.</p>
+        </div>
+
+        <div class="tab-pane fade" id="offre" role="tabpanel" aria-labelledby="offre-tab">
+            <h5>Faire une offre</h5>
+            <form method="post" action="#">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="vehicule" class="form-label">Véhicule</label>
+                    <select name="vehicule_id" class="form-select" required>
+                        {% for v in vehicules %}
+                            <option value="{{ v.id }}">{{ v.marque }} {{ v.modele }} - {{ v.prix }} FCFA</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="montant" class="form-label">Montant de l'offre (FCFA)</label>
+                    <input type="number" name="montant" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Soumettre l'offre</button>
+            </form>
+        </div>
+
+        <div class="tab-pane fade" id="achats" role="tabpanel" aria-labelledby="achats-tab">
+            <h5>Mes achats</h5>
+            <p>Liste des véhicules achetés avec détails (date, prix, vendeur...)</p>
+        </div>
+
+        <div class="tab-pane fade" id="encheres" role="tabpanel" aria-labelledby="encheres-tab">
+            <h5>Suivi des enchères</h5>
+            <p>Visualisez vos offres en cours, statut des enchères, etc.</p>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

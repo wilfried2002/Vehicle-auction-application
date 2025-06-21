@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="tab-pane fade" id="vehicules" role="tabpanel" aria-labelledby="vehicules-tab">
+    <h5 class="mb-3">Mes véhicules</h5>
+    <div class="row">
+        {% for v in vehicules %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if v.image %}
+                <img src="{{ v.image.url }}" class="card-img-top" alt="Image véhicule">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ v.marque }} {{ v.modele }}</h5>
+                    <p class="card-text">{{ v.description|truncatechars:100 }}</p>
+                    <p><strong>Prix :</strong> {{ v.prix }} FCFA</p>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <a href="{% url 'modifier_vehicule' v.id %}" class="btn btn-sm btn-warning">Modifier</a>
+                    {% if not v.est_vendu %}
+                        <a href="{% url 'marquer_vendu' v.id %}" class="btn btn-sm btn-success">Vendu</a>
+                    {% else %}
+                        <span class="badge bg-secondary">Vendu</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <p>Aucun véhicule pour le moment.</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

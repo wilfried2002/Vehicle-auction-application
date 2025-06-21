@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% if messages %}
+    <div id="messages-container">
+        {% for message in messages %}
+            <div class="notification success">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <meta charset="UTF-8">
+    <title>Connexion</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            margin: 80px auto;
+            background: #fff;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #007BFF;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+            background-color: #fff;
+        }
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #007BFF;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .notification {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-align: center;
+            animation: fadeout 0.5s ease forwards;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+        .notification.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            color: red;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .link a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .link a:hover {
+            text-decoration: underline;
+        }
+        .toggle-password {
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .toggle-password input {
+            margin-right: 8px;
+        }
+        .forgot-password {
+            text-align: right;
+            margin-top: -15px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .forgot-password a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Connexion</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="input-group">
+            <label for="username">Nom d'utilisateur</label>
+            <input type="text" name="username" id="username" required>
+        </div>
+        <div class="input-group">
+            <label for="password">Mot de passe</label>
+            <input type="password" name="password" id="password" required>
+        </div>
+
+        <div class="forgot-password">
+            <a href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
+        </div>
+
+        <div class="toggle-password">
+            <input type="checkbox" onclick="togglePassword()"> Afficher les mots de passe
+        </div>
+
+        <button type="submit" class="btn">Se connecter</button>
+    </form>
+
+    <div class="link">
+        Pas encore de compte ? <a href="{% url 'register' %}">Inscrivez-vous ici</a>
+    </div>
+</div>
+
+<script>
+    function togglePassword() {
+        const passwordInput = document.getElementById("password");
+        passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+        const form = document.querySelector("form");
+        if (form) {
+            form.reset();
+        }
+
+        setTimeout(() => {
+            const messages = document.querySelectorAll(".notification");
+            messages.forEach(msg => {
+                msg.style.opacity = 0;
+                setTimeout(() => msg.remove(), 500);
+            });
+        }, 1000);
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tableau de bord Vendeur</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f8;
+            color: #333;
+        }
+
+        header {
+            background-color: #007BFF;
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logout {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .nav-tabs .nav-link {
+            color: #007BFF;
+            font-weight: 500;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: #dbe9ff;
+            border-color: #dee2e6 #dee2e6 #fff;
+            color: #0056b3;
+        }
+
+        .tab-content {
+            margin-top: 30px;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+
+<header class="bg-primary text-white py-3 px-4 d-flex justify-content-end align-items-center gap-3">
+    <div class="user-info">
+        <span class="fw-semibold">Connecté en tant que</span> <strong>{{ request.user.username }}</strong>
+    </div>
+    <a href="{% url 'logout' %}" class="btn btn-outline-light d-flex align-items-center gap-2">
+        <i class="bi bi-box-arrow-right"></i> Déconnexion
+    </a>
+</header>
+
+<main>
+    <h1 class="text-center mb-4">Bienvenue, Vendeur !</h1>
+
+    <!-- Onglets de navigation -->
+    <ul class="nav nav-tabs justify-content-center" id="dashboardTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="ajouter-tab" data-bs-toggle="tab" data-bs-target="#ajouter" type="button" role="tab">
+                <i class="bi bi-plus-circle-fill me-2"></i>Ajouter véhicule
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="vehicules-tab" data-bs-toggle="tab" data-bs-target="#vehicules" type="button" role="tab">
+                <i class="bi bi-car-front-fill me-2"></i>Mes véhicules
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="offres-tab" data-bs-toggle="tab" data-bs-target="#offres" type="button" role="tab">
+                <i class="bi bi-envelope-paper-fill me-2"></i>Offres reçues
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="historique-tab" data-bs-toggle="tab" data-bs-target="#historique" type="button" role="tab">
+                <i class="bi bi-clock-history me-2"></i>Historique ventes
+            </button>
+        </li>
+    </ul>
+
+    <!-- Contenu des onglets -->
+    <div class="tab-content" id="dashboardTabsContent">
+        <div class="tab-pane fade show active" id="ajouter" role="tabpanel" aria-labelledby="ajouter-tab">
+            <!-- Formulaire d'ajout -->
+            <form method="post" enctype="multipart/form-data" action="{% url 'ajouter_vehicule' %}">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Marque</label>
+                        <input type="text" name="marque" class="form-control" value="{{ vehicule.marque|default:'' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Modèle</label>
+                        <input type="text" name="modele" class="form-control" value="{{ vehicule.modele|default:'' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Annee</label>
+                        <input type="text" name="annee" class="form-control" value="{{ vehicule.annee|default_if_none:'' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Prix</label>
+                        <input type="number" name="prix" class="form-control" value="{{ vehicule.prix|default:'' }}" required>
+                    </div>
+                    <div class="col-md-6">
+    <label class="form-label">Couleur</label>
+    <select id="couleur-select" name="couleur" class="form-select" onchange="gererAutreCouleur(this)">
+        <option value="" disabled selected>Choisir une couleur</option>
+        <option value="Noir">Noir</option>
+        <option value="Gris">Gris</option>
+        <option value="Rouge">Rouge</option>
+        <option value="Bleu">Bleu</option>
+        <option value="autre">Autre...</option>
+    </select>
+
+    <!-- Champ texte caché par défaut -->
+    <input type="text" id="autre-couleur" name="couleur" class="form-control mt-2" placeholder="Entrez une autre couleur" style="display: none;">
+</div>
+
+              <div class="col-md-6">
+                      <label for="image" class="form-label">Image</label>
+                      <input type="file" class="form-control" id="image" name="image">
+              {% if vehicule.image %}
+                      <div class="mt-2">
+                      <img src="{{ vehicule.image.url }}" alt="Image actuelle" width="120">
+                </div>
+            {% endif %}
+        </div>
+                   
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="mt-3 text-end">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- liste des vehicules  -->
+        <div class="tab-pane fade" id="vehicules" role="tabpanel" aria-labelledby="vehicules-tab">
+    <h5>Mes véhicules</h5>
+    {% if vehicules %}
+        <div class="row">
+            {% for v in vehicules %}
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        {% if v.image %}
+                        <img src="{{ v.image.url }}" class="card-img-top" alt="Image véhicule">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ v.marque }} {{ v.modele }}</h5>
+                            <p class="card-text">{{ v.description|truncatewords:15 }}</p>
+                            <p class="text-primary fw-bold">{{ v.prix }} FCFA</p>
+                            <div class="d-flex justify-content-between">
+                                <a href="#" class="btn btn-sm btn-outline-secondary"
+   data-bs-toggle="modal"
+   data-bs-target="#editVehiculeModal"
+   data-id="{{ v.id }}"
+   data-marque="{{ v.marque }}"
+   data-modele="{{ v.modele }}"
+   data-annee="{{ v.annee }}"
+   data-prix="{{ v.prix }}"
+   data-couleur="{{ v.couleur }}"
+   data-description="{{ v.description }}">
+   Modifier
+</a>
+                                <a href="#" class="btn btn-sm btn-success">Vendu</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Aucun véhicule enregistré pour l'instant.</p>
+    {% endif %}
+</div>
+
+        <div class="tab-pane fade" id="offres" role="tabpanel" aria-labelledby="offres-tab">
+            <h5>Offres reçues</h5>
+            <p>Liste des acheteurs intéressés par vos véhicules ici...</p>
+        </div>
+
+        <div class="tab-pane fade" id="historique" role="tabpanel" aria-labelledby="historique-tab">
+            <h5>Historique des ventes</h5>
+            <p>Véhicules déjà vendus affichés ici...</p>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<div class="modal fade" id="editVehiculeModal" tabindex="-1" aria-labelledby="editVehiculeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form id="editVehiculeForm" method="post">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="editVehiculeModalLabel">Modifier le véhicule</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id" id="edit-id">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label>Marque</label>
+              <input type="text" class="form-control" name="marque" id="edit-marque" required>
+            </div>
+            <div class="col-md-6">
+              <label>Modèle</label>
+              <input type="text" class="form-control" name="modele" id="edit-modele" required>
+            </div>
+            <div class="col-md-6">
+              <label>Année</label>
+              <input type="text" class="form-control" name="annee" id="edit-annee" required>
+            </div>
+            <div class="col-md-6">
+              <label>Prix</label>
+              <input type="number" class="form-control" name="prix" id="edit-prix" required>
+            </div>
+            <div class="col-md-6">
+              <label>Couleur</label>
+              <input type="text" class="form-control" name="couleur" id="edit-couleur" required>
+            </div>
+            <div class="col-12">
+              <label>Description</label>
+              <textarea class="form-control" name="description" id="edit-description" rows="3" required></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Mettre a jour</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

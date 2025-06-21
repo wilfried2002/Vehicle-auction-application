@@ -1,0 +1,97 @@
+<!-- <!DOCTYPE html>
+<html lang="fr">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% if messages %}
+  <div class="container mt-3 position-fixed top-0 end-0" style="z-index: 1050;">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+  <meta charset="UTF-8">
+  <title>Accès refusé</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .notification {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 20px 30px;
+      border: 1px solid #f5c6cb;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      font-size: 16px;
+      position: relative;
+      animation: fadein 0.5s ease-in-out;
+    }
+
+    .notification.hide {
+      animation: fadeout 0.5s ease-in-out forwards;
+    }
+
+    .notification::before {
+      content: "⚠️";
+      font-size: 24px;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    .notification p {
+      margin: 0;
+      padding-left: 5px;
+    }
+
+    a {
+      display: block;
+      margin-top: 12px;
+      color: #721c24;
+      font-weight: bold;
+      text-decoration: underline;
+      text-align: center;
+    }
+
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(-10p x); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeout {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-10px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="notification" id="accessDenied">
+    <p>Vous n'avez pas l'autorisation d'accéder à cette page d'administration.</p>
+    <a href="/">Retour à l'accueil</a>
+  </div>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(function () {
+      let alerts = document.querySelectorAll('.alert');
+      alerts.forEach(function (alert) {
+        let bsAlert = new bootstrap.Alert(alert);
+        bsAlert.close();
+      });
+    }, 5000); // 5 secondes
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> -->
