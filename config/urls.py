@@ -14,12 +14,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import include, path
-from django.contrib.auth import views as auth_views
+from django.contrib import admin # type: ignore
+from django.urls import include, path # type: ignore
+from django.contrib.auth import views as auth_views # type: ignore
+from django.conf import settings
+from django.conf.urls.static import static
 
 from users import views 
 from vehicles import views as vehicle_views
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -60,9 +63,12 @@ urlpatterns = [
     
     path('dashboard/', vehicle_views.vendeur_dashboard, name='vendeur_dashboard'),
    
-    path('ajouter/', vehicle_views.ajouter_modifier_vehicule, name='ajouter_vehicule'),
+    path('ajouter/', vehicle_views.ajouter_modifier_vehicule, name='ajouter_modifier_vehicule'),
     path('mes-vehicules/', vehicle_views.mes_vehicules, name='mes_vehicules'),
     path('modifier/<int:vehicule_id>/', vehicle_views.ajouter_modifier_vehicule, name='modifier_vehicule'),
-    path('marquer-vendu/<int:vehicule_id>/', vehicle_views.marquer_comme_vendu, name='marquer_vendu'),
+    path('marquer-vendu/<int:vehicule_id>/', vehicle_views.marquer_comme_vendu, name='marquer_comme_vendu'),
 
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

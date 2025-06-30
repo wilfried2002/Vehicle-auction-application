@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -60,9 +61,36 @@
             font-size: 2rem;
             color: #007BFF;
         }
+          /* style des card */
+         .vehicule-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .vehicule-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .vehicule-img {
+        object-fit: cover;
+        height: 200px;
+    }
+
+    .fade-in {
+        animation: fadeIn 0.6s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     </style>
 </head>
 <body>
+    <!-- {% load static %}
+    {% load humanize %} -->
+
 
 <header class="bg-primary text-white py-3 px-4 d-flex justify-content-end align-items-center gap-3">
     <div class="user-info">
@@ -72,6 +100,19 @@
         <i class="bi bi-box-arrow-right"></i> Déconnexion
     </a>
 </header>
+
+<!-- Affichage des messages -->
+{% if messages %}
+  <div class="container mt-3">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
 
 <main>
     <h1 class="text-center mb-4">Bienvenue, Vendeur !</h1>
@@ -103,25 +144,27 @@
     <!-- Contenu des onglets -->
     <div class="tab-content" id="dashboardTabsContent">
         <div class="tab-pane fade show active" id="ajouter" role="tabpanel" aria-labelledby="ajouter-tab">
-            <!-- Formulaire d'ajout -->
-            <form method="post" enctype="multipart/form-data" action="{% url 'ajouter_vehicule' %}">
+            
+          <!-- Formulaire d'ajout -->
+            <form method="post" enctype="multipart/form-data" action="{% url 'ajouter_modifier_vehicule' %}">
                 {% csrf_token %}
+                
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Marque</label>
-                        <input type="text" name="marque" class="form-control" value="{{ vehicule.marque|default:'' }}" required>
+                        <input type="text" name="marque" class="form-control" value="{{ vehicule.marque|default:'' }}" required placeholder="Marque du véhicule">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Modèle</label>
-                        <input type="text" name="modele" class="form-control" value="{{ vehicule.modele|default:'' }}" required>
+                        <input type="text" name="modele" class="form-control" value="{{ vehicule.modele|default:'' }}" required placeholder="Modèle du véhicule">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Annee</label>
-                        <input type="text" name="annee" class="form-control" value="{{ vehicule.annee|default_if_none:'' }}" required>
+                        <input type="text" name="annee" class="form-control" value="{{ vehicule.annee|default_if_none:'' }}" required placeholder="Année de fabrication">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Prix</label>
-                        <input type="number" name="prix" class="form-control" value="{{ vehicule.prix|default:'' }}" required>
+                        <input type="text" name="prix" value="{{ vehicule.prix|default:'' }}" step="0.01" min="0" required class="form-control" placeholder="Prix en FCFA">
                     </div>
                     <div class="col-md-6">
     <label class="form-label">Couleur</label>
@@ -140,7 +183,7 @@
 
               <div class="col-md-6">
                       <label for="image" class="form-label">Image</label>
-                      <input type="file" class="form-control" id="image" name="image">
+                      <input type="file" class="form-control" id="image" name="image" >
               {% if vehicule.image %}
                       <div class="mt-2">
                       <img src="{{ vehicule.image.url }}" alt="Image actuelle" width="120">
@@ -150,7 +193,7 @@
                    
                     <div class="col-12">
                         <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="3" required></textarea>
+                        <textarea name="description" class="form-control" rows="3" required >{{ vehicule.description|default:'' }}</textarea>
                     </div>
                 </div>
                 <div class="mt-3 text-end">
@@ -159,35 +202,56 @@
             </form>
         </div>
 
+        
+
         <!-- liste des vehicules  -->
-        <div class="tab-pane fade" id="vehicules" role="tabpanel" aria-labelledby="vehicules-tab">
-    <h5>Mes véhicules</h5>
+        <div class="tab-pane fade show active" id="vehicules" role="tabpanel" aria-labelledby="vehicules-tab">
+    <h4 class="mb-4">Mes véhicules</h4>
     {% if vehicules %}
-        <div class="row">
+        <div class="row g-4">
             {% for v in vehicules %}
-                <div class="col-md-4">
-                    <div class="card mb-4 shadow-sm">
+                <div class="col-md-6 col-lg-4 fade-in" id="vehicule-{{ vehicule.id }}">
+                    <div class="card vehicule-card h-100">
+
                         {% if v.image %}
-                        <img src="{{ v.image.url }}" class="card-img-top" alt="Image véhicule">
+                        <img src="{{ v.image.url }}" class="card-img-top vehicule-img" alt="{{ v.marque }}">
+                    {% else %}
+                        <img src="{% static 'images/default-car.jpg' %}" class="card-img-top vehicule-img" alt="Pas d’image">
+                    {% endif %}
+
+                        <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ v.marque }} {{ v.modele }}</h5>
+                        <p class="text-muted">{{ v.description|truncatewords:15 }}</p>
+                        <span class="badge bg-primary">{{ v.prix|floatformat:0 }} FCFA</span>
+
+                        <small class="mt-2 text-muted d-block">
+                            Ajouté le : {{ v.date_ajout|date:"d/m/Y H:i" }}<br>
+                            Par : {{ v.vendeur.username }}
+                        </small>
+
+                            {% if v.est_vendu %}
+                            <span class="badge bg-success mt-2">Vendu</span>
                         {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ v.marque }} {{ v.modele }}</h5>
-                            <p class="card-text">{{ v.description|truncatewords:15 }}</p>
-                            <p class="text-primary fw-bold">{{ v.prix }} FCFA</p>
-                            <div class="d-flex justify-content-between">
-                                <a href="#" class="btn btn-sm btn-outline-secondary"
-   data-bs-toggle="modal"
-   data-bs-target="#editVehiculeModal"
-   data-id="{{ v.id }}"
-   data-marque="{{ v.marque }}"
-   data-modele="{{ v.modele }}"
-   data-annee="{{ v.annee }}"
-   data-prix="{{ v.prix }}"
-   data-couleur="{{ v.couleur }}"
-   data-description="{{ v.description }}">
-   Modifier
-</a>
-                                <a href="#" class="btn btn-sm btn-success">Vendu</a>
+
+                            <div class="mt-auto d-flex justify-content-between pt-3">
+                            <button 
+                                class="btn btn-sm btn-outline-secondary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#editVehiculeModal"
+                                data-id="{{ v.id }}"
+                                data-marque="{{ v.marque }}"
+                                data-modele="{{ v.modele }}"
+                                data-annee="{{ v.annee }}"
+                                data-prix="{{ v.prix }}"
+                                data-couleur="{{ v.couleur }}"
+                                data-description="{{ v.description }}"
+                                data-image="{{ v.image.url|default:'' }}"
+                                
+                            >Modifier</button>
+
+                                <a href="{% url 'marquer_comme_vendu' v.id %}" class="btn btn-sm btn-danger">
+                                {% if v.est_vendu %}Marquer vendu{% else %}Marquer vendu{% endif %}
+                            </a>
                             </div>
                         </div>
                     </div>
@@ -195,68 +259,167 @@
             {% endfor %}
         </div>
     {% else %}
-        <p>Aucun véhicule enregistré pour l'instant.</p>
+        <div class="alert alert-info text-center mt-4">
+            Aucun véhicule enregistré pour l'instant.
+        </div>
     {% endif %}
 </div>
-
+        <!-- formulaire d'Offres reçues et historique des ventes -->
         <div class="tab-pane fade" id="offres" role="tabpanel" aria-labelledby="offres-tab">
             <h5>Offres reçues</h5>
             <p>Liste des acheteurs intéressés par vos véhicules ici...</p>
         </div>
 
+        <!--  formulaire d'historique des ventes -->
         <div class="tab-pane fade" id="historique" role="tabpanel" aria-labelledby="historique-tab">
             <h5>Historique des ventes</h5>
             <p>Véhicules déjà vendus affichés ici...</p>
         </div>
     </div>
 </main>
-
+ 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- modal de modification du véhicule -->
+<!-- Modal d'édition du véhicule -->
 <div class="modal fade" id="editVehiculeModal" tabindex="-1" aria-labelledby="editVehiculeModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <form id="editVehiculeForm" method="post">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content shadow">
+
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title" id="editVehiculeModalLabel">Modifier le véhicule</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+
+      <form method="post" enctype="multipart/form-data" action="">
+        
         {% csrf_token %}
-        <div class="modal-header">
-          <h5 class="modal-title" id="editVehiculeModalLabel">Modifier le véhicule</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-        </div>
+
         <div class="modal-body">
-          <input type="hidden" name="id" id="edit-id">
+          <input type="hidden" id="vehicule-id" name="vehicule_id">
+
           <div class="row g-3">
             <div class="col-md-6">
-              <label>Marque</label>
-              <input type="text" class="form-control" name="marque" id="edit-marque" required>
+              <label for="marque" class="form-label">Marque</label>
+              <input type="text" class="form-control" id="marque" name="marque" required>
             </div>
+
             <div class="col-md-6">
-              <label>Modèle</label>
-              <input type="text" class="form-control" name="modele" id="edit-modele" required>
+              <label for="modele" class="form-label">Modèle</label>
+              <input type="text" class="form-control" id="modele" name="modele" required>
             </div>
+
             <div class="col-md-6">
-              <label>Année</label>
-              <input type="text" class="form-control" name="annee" id="edit-annee" required>
+              <label for="annee" class="form-label">Année</label>
+              <input type="number" class="form-control" id="annee" name="annee" min="1900" max="2100" required>
             </div>
+
             <div class="col-md-6">
-              <label>Prix</label>
-              <input type="number" class="form-control" name="prix" id="edit-prix" required>
+              <label for="prix" class="form-label">Prix (FCFA)</label>
+              <input type="text" class="form-control" id="prix" name="prix" required>
             </div>
-            <div class="col-md-6">
-              <label>Couleur</label>
-              <input type="text" class="form-control" name="couleur" id="edit-couleur" required>
+
+            <div class="col-md-12">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="forem-control" id="description" name="description" rows="3" required></textarea>
             </div>
-            <div class="col-12">
-              <label>Description</label>
-              <textarea class="form-control" name="description" id="edit-description" rows="3" required></textarea>
+
+            <div class="col-md-12">
+              <label for="image" class="form-label">Image (optionnelle)</label>
+              <input type="file" class="form-control" id="image" name="image" accept="image/*">
+              <div class="mt-2">
+                <img id="preview-image" src="#" alt="Aperçu" class="img-fluid rounded shadow-sm d-none" style="max-height: 200px;">
+              </div>
             </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Mettre a jour</button>
+
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
         </div>
       </form>
+
     </div>
   </div>
 </div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const editModal = document.getElementById('editVehiculeModal');
+  editModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+
+    const id = button.getAttribute('data-id');
+    const marque = button.getAttribute('data-marque');
+    const modele = button.getAttribute('data-modele');
+    const annee = button.getAttribute('data-annee');
+    const prix = button.getAttribute('data-prix');
+    const description = button.getAttribute('data-description');
+    const image = button.getAttribute('data-image');
+    const form = editModal.querySelector('form');
+    
+    form.action = button.getAttribute('data-url');
+
+    // Form fields
+    editModal.querySelector('#vehicule-id').value = id;
+    editModal.querySelector('#marque').value = marque;
+    editModal.querySelector('#modele').value = modele;
+    editModal.querySelector('#annee').value = annee;
+    editModal.querySelector('#prix').value = prix;
+    editModal.querySelector('#description').value = description;
+
+    const imagePreview = editModal.querySelector('#preview-image');
+    if (image) {
+      imagePreview.src = image;
+      imagePreview.classList.remove('d-none');
+    } else {
+      imagePreview.classList.add('d-none');
+    }
+
+    // Action update URL
+    editModal.querySelector('form').action = `/ajouter-modifier/${id}/`;
+  });
+</script>
+<script>
+  // Cacher automatiquement les messages après 5 secondes (5000 ms)
+  setTimeout(function () {
+    let alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function (alert) {
+      // Bootstrap 5 : fade out + remove
+      alert.classList.remove('show');
+      alert.classList.add('fade');
+      setTimeout(function () {
+        alert.remove();
+      }, 500); // laisser un peu de temps pour l'animation
+    });
+  }, 5000);
+</script>
+
+{% if messages %}
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    {% for message in messages %}
+      <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            {{ message }}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <script>
+    const toastElList = [].slice.call(document.querySelectorAll('.toast'))
+    const toastList = toastElList.map(function (toastEl) {
+      return new bootstrap.Toast(toastEl).show();
+    });
+  </script>
+{% endif %}
+{% endblock %}
+
 
 </body>
 </html>

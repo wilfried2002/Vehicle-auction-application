@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect
 from .forms import VehicleForm
 from .models import Vehicle
+from django.db.models import DecimalField #type: ignore
+from decimal import Decimal, InvalidOperation
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 # @login_required
 # def ajouter_vehicule(request):
@@ -20,43 +23,52 @@ from django.contrib.auth.decorators import login_required
 
 @login_required
 def ajouter_modifier_vehicule(request, vehicule_id=None):
+    vehicule = None
+
     if vehicule_id:
-        vehicule = Vehicle.objects.get(id=vehicule_id, vendeur=request.user)
-    else:
-        vehicule = None
+        vehicule = get_object_or_404(Vehicle, id=vehicule_id, vendeur=request.user) # type: ignore
 
     if request.method == 'POST':
         marque = request.POST.get('marque')
         modele = request.POST.get('modele')
         annee = request.POST.get('annee')
-        prix = request.POST.get('prix')
         description = request.POST.get('description')
+        prix_str = request.POST.get('prix', '0').replace(',', '').replace(' ', '').strip()
         image = request.FILES.get('image')
+
+        try:
+            prix_decimal = Decimal(prix_str)
+        except (InvalidOperation, ValueError):
+            messages.error(request, "Prix invalide, valeur mise à 0.")
+            prix_decimal = Decimal(0)
 
         if vehicule:
             vehicule.marque = marque
             vehicule.modele = modele
             vehicule.annee = annee
-            vehicule.prix = prix
             vehicule.description = description
+            vehicule.prix = prix_decimal
             if image:
                 vehicule.image = image
             vehicule.save()
+            messages.success(request, "Véhicule modifié avec succès.")
+            return redirect('mes_vehicules')
         else:
             Vehicle.objects.create(
                 vendeur=request.user,
                 marque=marque,
                 modele=modele,
                 annee=annee,
-                prix=prix,
                 description=description,
+                prix=prix_decimal,
                 image=image
             )
+            messages.success(request, "Véhicule ajouté avec succès.")
 
         return redirect('vendeur_dashboard')
 
     return render(request, 'vendeur/ajouter_modifier.html', {
-        'vehicule': vehicule,
+        'vehicule': vehicule
     })
 
 
